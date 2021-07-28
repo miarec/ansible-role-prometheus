@@ -5,7 +5,7 @@ This role installs Prometheus
 
 ## Role Variables
 
-    prometheus_bind_port: 8080
+    prometheus_bind_port: 9090
 	
 
 ## Dependencies
