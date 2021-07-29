@@ -5,7 +5,7 @@
   scrape_interval: 15s
   static_configs:
   - targets:
-{% for server in groups[prometheus_node_exporter_group] %}
-    - {{ server }}:9100
+{% for host in groups[prometheus_node_exporter_group] %}
+    - {{ hostvars[host].private_ip_address }}:9100
 {% endfor %}
 {% endif %}
