@@ -6,7 +6,7 @@ This role installs Prometheus
 ## Role Variables
 
     prometheus_bind_port: 9090
-	
+    hello_world	
 
 ## Dependencies
 
