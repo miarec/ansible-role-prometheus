@@ -1,6 +1,8 @@
 ---
 # tasks file for prometheus
 
+# Check for current install of Prometheus
+
 - name: check if prometheus exist
   stat:
     path: "{{ prometheus_bin }}"
@@ -13,13 +15,17 @@
 
 - name: check if console exist
   stat:
-    path: "{{ prometheus_dir_configuration }}/console"
+    path: "{{ prometheus_dir_config }}/console"
   register: __check_console_present
 
 - name: check if console_lib exist
   stat:
-    path: "{{ prometheus_dir_configuration }}/console_libraries"
+    path: "{{ prometheus_dir_config }}/console_libraries"
   register: __check_console_lib_present
+
+
+
+# Prep system for prometheus install
 
 - name: create prometheus user
   user:
@@ -31,7 +37,7 @@
 
 - name: create prometheus config dir
   file:
-    path: "{{ prometheus_dir_conf }}"
+    path: "{{ prometheus_dir_config }}"
     state: directory
     owner: "{{ prometheus_user }}"
     group: "{{ prometheus_group }}"
@@ -45,17 +51,21 @@
 
 - name: create consoles dir
   file:
-    path: "{{ prometheus_dir_conf }}/consoles"
+    path: "{{ prometheus_dir_config }}/consoles"
     state: directory
     owner: "{{ prometheus_user }}"
     group: "{{ prometheus_group }}"
 
 - name: create console_libraries dir
   file:
-    path: "{{ prometheus_dir_conf }}/console_libraries"
+    path: "{{ prometheus_dir_config }}/console_libraries"
     state: directory
     owner: "{{ prometheus_user }}"
     group: "{{ prometheus_group }}"
+
+
+
+# Download and install Prometheus binary
 
 - name: download and unzip prometheus if not exist
   unarchive:
@@ -86,11 +96,11 @@
   when: __check_promtool_present.stat.exists == false
 
 - name: move the consoles to the final destination
-  command: "cp -r /tmp/prometheus-{{ prometheus_version }}.linux-amd64/consoles {{ prometheus_dir_configuration }}"
+  command: "cp -r /tmp/prometheus-{{ prometheus_version }}.linux-amd64/consoles {{ prometheus_dir_config }}"
   when: __check_console_present.stat.exists == false
 
 - name: move the consoles_libraries to the final destination
-  command: "cp -r /tmp/prometheus-{{ prometheus_version }}.linux-amd64/console_libraries {{ prometheus_dir_configuration }}"
+  command: "cp -r /tmp/prometheus-{{ prometheus_version }}.linux-amd64/console_libraries {{ prometheus_dir_config }}"
   when: __check_console_lib_present.stat.exists == false
 
 - name: clean
@@ -98,14 +108,20 @@
     path: /tmp/prometheus-{{ prometheus_version }}.linux-amd64/
     state: absent
 
+
+# Create Prometheus Configuration file
+
 - name: prometheus configuration file
   template:
     src: prometheus.yml.j2
-    dest: "{{ prometheus_dir_configuration }}/prometheus.yml"
+    dest: "{{ prometheus_dir_config }}/prometheus.yml"
     mode: 0755
     owner: "{{ prometheus_user }}"
     group: "{{ prometheus_group }}"
-  notify: restart_prometheus
+
+
+
+# Install and Start service
 
 - name: install service
   template:
@@ -116,10 +132,4 @@
     mode: 0755
   notify: restart_prometheus
 
-- name: start prometheus
-  systemd:
-    name: prometheus
-    state: started
-    enabled: yes
 
-- meta: flush_handlers

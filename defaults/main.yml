@@ -1,28 +1,29 @@
 ---
 # defaults file for prometheus
 
-prometheus_dir_configuration: "/etc/prometheus"
-prometheus_dir_storage: "/var/lib/prometheus"
+prometheus_version: "2.28.1"    # https://prometheus.io/download/  for latests releases
+
 prometheus_retention_time: "365d"
-prometheus_scrape_interval: "30s"
+prometheus_scrape_interval: "15s"
 prometheus_node_exporter: true
 prometheus_node_exporter_group: "all"
-prometheus_env: "production"
+
+prometheus_user: prometheus
+prometheus_group: "{{ prometheus_user }}"
+prometheus_bin: /usr/local/bin/prometheus
+promtool_bin: /usr/local/bin/promtool
+prometheus_dir_config: /etc/prometheus
+prometheus_dir_storage: /var/lib/prometheus
+
 prometheus_var_config:
   global:
     scrape_interval: "{{ prometheus_scrape_interval }}"
   scrape_configs:
-    - job_name: prometheus
+    - job_name: prometheus_master
       scrape_interval: 5m
       static_configs:
         - targets: ['localhost:9090']
 
-prometheus_version: "2.28.1"
-prometheus_bin: /usr/local/bin/prometheus
-promtool_bin: /usr/local/bin/promtool
-prometheus_user: prometheus
-prometheus_group: "{{ prometheus_user }}"
-prometheus_dir_conf: /etc/prometheus
 
 
 
