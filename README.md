@@ -8,8 +8,9 @@ Prometheus is a time series database that aggregates reported data from node_exp
 ### Version information:
 
     prometheus_version: "2.28.1" 
+    prometheus+_download_url: "https://github.com/prometheus/prometheus/releases/download/v{{ prometheus_version }}/prometheus-{{ prometheus_version }}.linux-amd64.tar.gz"
 
-Prometheus binary is manually installed, Choose the version of Prometheus client to be installed, more information can be found at https://prometheus.io/download/  
+Prometheus binary is manually installed, Choose the version of Prometheus client to be installed, and the URL to download this more information can be found at https://prometheus.io/download/  
 
 ### Collection Behavior
 
@@ -43,9 +44,9 @@ None.
 
     ---
     - name: Install Prometheus
-      hosts: monitor
+      hosts: prometheus
       pre_tasks:
-        - include_vars: vars/custom.yml
+        - include_vars: vars/firewall.yml
           failed_when: false
       become: yes
       roles:

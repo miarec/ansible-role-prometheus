@@ -6,6 +6,6 @@
   scrape_interval: 15s
   static_configs:
   - targets:
-    - {{ hostvars[host].private_ip_address }}:9100
+    - {{ hostvars[host].private_ip_address }}:{{ node_exporter_listen_port }}
 {% endfor %}
 {% endif %}
