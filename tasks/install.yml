@@ -1,0 +1,116 @@
+---
+# --------------------------------------------------
+# Create a directory for new release
+# --------------------------------------------------
+- name: Create release directory
+  file:
+    path: '{{ deploy_helper.new_release_path }}'
+    state: directory
+    mode: u=rwX,g=rX,o=rX
+
+# --------------------------------------------------
+# Download and extract Prometheus files into .../releases/{version} folder
+# --------------------------------------------------
+- name: Verify prometheus binary presense
+  stat:
+    path: "{{ deploy_helper.new_release_path }}/prometheus"
+  register: prometheus_bin_exists
+
+
+- name: Add an unfinished file, to allow cleanup on successful finalize
+  file:
+    path: '{{ deploy_helper.new_release_path }}/{{ deploy_helper.unfinished_filename }}'
+    state: touch
+  when: prometheus_bin_exists.stat.exists == False
+
+
+- name: Download Prometheus tarbal
+  get_url:
+    url: "{{ prometheus_download_url }}"
+    dest: "{{ prometheus_download_dir }}/prometheus-{{ prometheus_version }}.tar.gz"
+  when: prometheus_bin_exists.stat.exists == False
+
+
+- name: Untar the source package
+  unarchive:
+    src: "{{ prometheus_download_dir }}/prometheus-{{ prometheus_version }}.tar.gz"
+    dest: "{{ prometheus_download_dir }}/"
+    creates: "{{ prometheus_download_dir }}/prometheus-{{ prometheus_version }}/prometheus"
+    copy: no
+    mode: u=rwX,g=rX,o=rX
+  when: prometheus_bin_exists.stat.exists == False
+
+
+- name: Move the downloaded files to the releases folder
+  shell: "mv {{ prometheus_download_dir }}/prometheus-{{ prometheus_version}}/* {{ deploy_helper.new_release_path }}/"
+  when: prometheus_bin_exists.stat.exists == False
+
+
+
+# --------------------------------------------------
+# Create required directory
+# --------------------------------------------------
+- name: Create data directory for Prometheus
+  file:
+    path: '{{ prometheus_data_dir }}'
+    owner: '{{ prometheus_user }}'
+    group: '{{ prometheus_group }}'
+    state: directory
+
+- name: Create log directories for Prometheus
+  file:
+    path: '{{ prometheus_log_dir }}'
+    owner: '{{ prometheus_user }}'
+    group: '{{ prometheus_group }}'
+    state: directory
+
+# --------------------------------------------------
+# Configuration file
+# It must have permissions:
+#   - read-only access for group "prometheus"
+#   - no access for other users
+# --------------------------------------------------
+- name: Create conf directory for Prometheus
+  file:
+    path: '{{ prometheus_conf_dir }}'
+    state: directory
+
+
+- name: Configure prometheus.yml file
+  template:
+    src: prometheus.yml.j2
+    dest: "{{ prometheus_conf_dir }}/prometheus.yml"
+    owner: root
+    group: '{{ prometheus_group }}'
+    mode: u=rwX,g=rX,o=
+  notify: reload prometheus
+
+
+- name: Install service
+  template:
+    src: "prometheus.service.j2"
+    dest: "/etc/systemd/system/prometheus.service"
+    owner: root
+    group: root
+    mode: 0644
+  notify: start prometheus
+
+
+- name: Enable service
+  service: 
+    name: prometheus
+    enabled: yes
+
+# Important! do not start the service right now. Postpone it until deploy_helper creates symbolic link to new release folder.
+
+# --------------------------------------------------
+# Cleanup
+# --------------------------------------------------
+- name: Clean up the downloaded files
+  file: 
+    path: '{{ item }}'
+    state: absent
+  with_items:
+    - "{{ prometheus_download_dir }}/prometheus-{{ prometheus_version }}"
+    - "{{ prometheus_download_dir }}/prometheus-{{ prometheus_version }}.tar.gz"
+  when: prometheus_cleanup_downloads|bool

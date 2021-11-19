@@ -1,11 +1,19 @@
-#jinja2: lstrip_blocks: "True"
-{{ prometheus_var_config | to_nice_yaml(indent=2) }}
-{% if prometheus_node_exporter_group %}
-{% for host in groups[prometheus_node_exporter_group] %}
-- job_name: {{ host }}_node_exporter
-  scrape_interval: 15s
-  static_configs:
-  - targets:
-    - {{ hostvars[host].private_ip_address }}:{{ node_exporter_listen_port }}
-{% endfor %}
-{% endif %}
+# {{ ansible_managed }} 
+
+# --------------------------------------
+# Global configuration
+# --------------------------------------
+global:
+  scrape_interval: {{ prometheus_scrape_interval }} 
+  evaluation_interval: {{ prometheus_evaluation_interval }}
+
+# --------------------------------------
+# Scrape configuration
+# --------------------------------------
+scrape_configs:
+{{ prometheus_scrape_configs | to_nice_yaml(indent=2) | indent(2) }}
+
+# --------------------------------------
+# Additional configuration
+# --------------------------------------
+{{ prometheus_extra_config | to_nice_yaml(indent=2) }}
