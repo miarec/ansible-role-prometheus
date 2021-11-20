@@ -2,7 +2,7 @@
 # --------------------------------------------------
 # Create a directory for new release
 # --------------------------------------------------
-- name: Create release directory
+- name: 'Create release directory ({{ deploy_helper.new_release_path }})'
   file:
     path: '{{ deploy_helper.new_release_path }}'
     state: directory
