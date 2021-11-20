@@ -31,77 +31,26 @@
   when: prometheus_bin_exists.stat.exists == False
 
 
+- name: Create a directory to extract files to
+  file:
+    path: '{{ prometheus_download_dir }}/prometheus-{{ prometheus_version}}'
+    state: directory
+  when: prometheus_bin_exists.stat.exists == False
+
 - name: Untar the source package
   unarchive:
     src: "{{ prometheus_download_dir }}/prometheus-{{ prometheus_version }}.tar.gz"
-    dest: "{{ prometheus_download_dir }}/"
+    dest: "{{ prometheus_download_dir }}/prometheus-{{ prometheus_version}}"
     creates: "{{ prometheus_download_dir }}/prometheus-{{ prometheus_version }}/prometheus"
     copy: no
     mode: u=rwX,g=rX,o=rX
+    extra_opts: [--strip-components=1]
   when: prometheus_bin_exists.stat.exists == False
 
 
 - name: Move the downloaded files to the releases folder
   shell: "mv {{ prometheus_download_dir }}/prometheus-{{ prometheus_version}}/* {{ deploy_helper.new_release_path }}/"
   when: prometheus_bin_exists.stat.exists == False
-
-
-
-# --------------------------------------------------
-# Create required directory
-# --------------------------------------------------
-- name: Create data directory for Prometheus
-  file:
-    path: '{{ prometheus_data_dir }}'
-    owner: '{{ prometheus_user }}'
-    group: '{{ prometheus_group }}'
-    state: directory
-
-- name: Create log directories for Prometheus
-  file:
-    path: '{{ prometheus_log_dir }}'
-    owner: '{{ prometheus_user }}'
-    group: '{{ prometheus_group }}'
-    state: directory
-
-# --------------------------------------------------
-# Configuration file
-# It must have permissions:
-#   - read-only access for group "prometheus"
-#   - no access for other users
-# --------------------------------------------------
-- name: Create conf directory for Prometheus
-  file:
-    path: '{{ prometheus_conf_dir }}'
-    state: directory
-
-
-- name: Configure prometheus.yml file
-  template:
-    src: prometheus.yml.j2
-    dest: "{{ prometheus_conf_dir }}/prometheus.yml"
-    owner: root
-    group: '{{ prometheus_group }}'
-    mode: u=rwX,g=rX,o=
-  notify: reload prometheus
-
-
-- name: Install service
-  template:
-    src: "prometheus.service.j2"
-    dest: "/etc/systemd/system/prometheus.service"
-    owner: root
-    group: root
-    mode: 0644
-  notify: start prometheus
-
-
-- name: Enable service
-  service: 
-    name: prometheus
-    enabled: yes
-
-# Important! do not start the service right now. Postpone it until deploy_helper creates symbolic link to new release folder.
 
 # --------------------------------------------------
 # Cleanup
@@ -114,3 +63,17 @@
     - "{{ prometheus_download_dir }}/prometheus-{{ prometheus_version }}"
     - "{{ prometheus_download_dir }}/prometheus-{{ prometheus_version }}.tar.gz"
   when: prometheus_cleanup_downloads|bool
+
+
+# --------------------------------------------------
+# Cleanup old and unfinished releases
+# --------------------------------------------------
+- name: Cleanup old releases
+  deploy_helper:
+    path: "{{ prometheus_base_dir }}"
+    release: '{{ deploy_helper.new_release }}'
+    state: finalize
+    keep_releases: 10
+  notify: 
+    - restart prometheus
+  become: yes

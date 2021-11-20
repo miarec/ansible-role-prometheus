@@ -1,0 +1,22 @@
+---
+
+# --------------------------------------------------
+# Configuration file
+# --------------------------------------------------
+- name: Create conf directory for Prometheus
+  file:
+    path: '{{ prometheus_conf_dir }}'
+    owner: '{{ prometheus_user }}'
+    group: '{{ prometheus_group }}'
+    state: directory
+
+
+- name: Configure prometheus.yml file
+  template:
+    src: prometheus.yml.j2
+    dest: "{{ prometheus_conf_dir }}/prometheus.yml"
+    owner: '{{ prometheus_user }}'
+    group: '{{ prometheus_group }}'
+    mode: u=rX,g=rX,o=rX
+  notify: reload prometheus
+

@@ -11,9 +11,11 @@ global:
 # Scrape configuration
 # --------------------------------------
 scrape_configs:
-{{ prometheus_scrape_configs | to_nice_yaml(indent=2) | indent(2) }}
+  {{ prometheus_scrape_configs | to_nice_yaml(indent=2) | indent(2) }}
 
 # --------------------------------------
 # Additional configuration
 # --------------------------------------
+{% if prometheus_extra_config is defined and prometheus_extra_config|length %}
 {{ prometheus_extra_config | to_nice_yaml(indent=2) }}
+{% endif %}

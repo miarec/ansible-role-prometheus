@@ -5,38 +5,7 @@
     - "../vars/{{ ansible_distribution }}-{{ ansible_distribution_major_version}}.yml"
     - "../vars/{{ ansible_distribution }}.yml"
 
-# ---------------------------------------------
-# Install dependencies
-# ---------------------------------------------
-- include: dependencies.yml
-  become: yes
-
-# --------------------------------------------------
-# Create user/group
-# --------------------------------------------------
-- name: "Add prometheus group '{{ prometheus_group }}'"
-  group:
-    name: "{{ prometheus_group }}"
-    state: present
-  when: prometheus_group != 'root'
-
-- name: "Add prometheus user '{{ prometheus_user }}'"
-  user:
-    name: "{{ prometheus_user }}"
-    group: "{{ prometheus_group }}"
-    comment: "Prometheus"
-    shell: /bin/false
-    system: yes
-  when: prometheus_user != 'root'
-
-# --------------------------------------------------
-# Initialize the installation/upgrade process
-# --------------------------------------------------
-- name: Initialize the deploy root and gather facts
-  deploy_helper:
-    path: "{{ prometheus_install_dir }}"
-    release: "{{ prometheus_version }}"
-    mode: u=rwX,g=rX,o=rX
+- include: prepare.yml
   become: yes
 
 # --------------------------------------------------
@@ -46,14 +15,37 @@
   become: yes
 
 # --------------------------------------------------
-# Cleanup old and unfinished releases
+# Create a configuraiton file (prometheus.yml)
 # --------------------------------------------------
-- name: Cleanup old releases
-  deploy_helper:
-    path: "{{ prometheus_install_dir }}"
-    release: '{{ deploy_helper.new_release }}'
-    state: finalize
-    keep_releases: 10
-  notify: 
-    - restart prometheus
+- include: config.yml
+  become: yes
+
+# --------------------------------------------------
+# Install and run the service
+# --------------------------------------------------
+- name: Install service
+  template:
+    src: "prometheus.service.j2"
+    dest: "/etc/systemd/system/prometheus.service"
+    owner: root
+    group: root
+    mode: 0644
+  become: yes
+  notify: start prometheus
+
+- name: Enable service
+  service: 
+    name: prometheus
+    enabled: yes
+  become: yes
+
+- name: Force all handlers to run
+  meta: flush_handlers
+
+# Make sure the service is running.
+# Otherwise, report error 
+- name: Verify if service is running
+  service: 
+    name: prometheus
+    state: started
   become: yes

@@ -8,33 +8,28 @@ Prometheus is a time series database that aggregates reported data from node_exp
 ### Version information:
 
     prometheus_version: "2.28.1" 
-    prometheus+_download_url: "https://github.com/prometheus/prometheus/releases/download/v{{ prometheus_version }}/prometheus-{{ prometheus_version }}.linux-amd64.tar.gz"
 
-Prometheus binary is manually installed, Choose the version of Prometheus client to be installed, and the URL to download this more information can be found at https://prometheus.io/download/  
+Choose the version of Prometheus client to be installed. The available versions can be found at https://prometheus.io/download/  
 
-### Collection Behavior
+### Scape targets configuration
 
-    prometheus_retention_time: "365d"
-    prometheus_scrape_interval: "15s"
-    prometheus_node_exporter: true
-    prometheus_node_exporter_group: "all"
+  prometheus_scrape_configs:
 
-These settings determine the behavior of the the prometheus instance data collection. 
-  - Choose the total retention time that Prometheus will store data
-  - Select the ammount of time between data scrapes
-  - Choose if the targets are node_exporters
-  - Choose the ansible inventory group that prometheus expects to find node_exporter clients
+    - job_name: prometheus
+      static_configs:
+        - targets: 
+          - localhost:9090
 
-### OS prep
+    - job_name: node
+      static_configs:
+        - targets:
+          - localhost:9100
+          - 1.2.3.4:9100
+          - 5.6.7.8:9100
 
-    prometheus_user: prometheus
-    prometheus_group: "{{ prometheus_user }}"
-    prometheus_bin: /usr/local/bin/prometheus
-    promtool_bin: /usr/local/bin/promtool
-    prometheus_dir_config: /etc/prometheus
-    prometheus_dir_storage: /var/lib/prometheus
+### Other variables
 
-These settings prep the user, owner and location of the prometheus install
+Check `defaults/main.yml` file for a list of all available variables.
 
 ## Dependencies
 
@@ -45,16 +40,31 @@ None.
     ---
     - name: Install Prometheus
       hosts: prometheus
-      pre_tasks:
-        - include_vars: vars/firewall.yml
-          failed_when: false
-      become: yes
       roles:
-        - role: 'prometheus'
-          tags: 'prometheus'
+        - ansible-role-prometheus
 
-## Reloading / restarting
+# Quick test of role (during development)
 
-Key config changes to the config file /etc/prometheus/prometheus.yml require a full restart of the service
+Create a test inventory file (test-inventory.ini) with the following content:
 
-    sudo systemctl restart grafana-server prometheus
+    [all]
+    my-server ansible_ssh_host=1.2.3.4 ansible_user=ubuntu
+
+    [all:vars]
+    prometheus_version = 2.28.1
+
+    [prometheus]
+    my-server
+
+Create a test playbook file (test-provision.yml) with the following content:
+
+    ---
+    - hosts: prometheus
+      roles:
+        - ansible-role-prometheus
+
+Run playbook:
+
+    export ANSIBLE_ROLES_PATH=../
+
+    ansible-playbook -i test-inventory.ini test-provision.yml

@@ -24,7 +24,7 @@ prometheus_scrape_configs:
 
 
 # Additional configuration written to prometheus.yml file
-prometheus_extra_config:
+prometheus_extra_config: []
 
 
 # OS prep
@@ -52,7 +52,7 @@ prometheus_group: "{{ prometheus_user }}"
 prometheus_base_dir: /opt/prometheus
 
 prometheus_bin_dir: '{{ prometheus_base_dir }}/current'
-prometheus_config_dir: '{{ prometheus_base_dir }}/shared/conf'
+prometheus_conf_dir: '{{ prometheus_base_dir }}/shared/conf'
 prometheus_data_dir: '{{ prometheus_base_dir }}/shared/data'
 
 prometheus_log_dir: '/var/log/prometheus'

@@ -1,0 +1,47 @@
+---
+# --------------------------------------------------
+# Create user/group
+# --------------------------------------------------
+- name: "Add prometheus group '{{ prometheus_group }}'"
+  group:
+    name: "{{ prometheus_group }}"
+    state: present
+  become: yes
+  when: prometheus_group != 'root'
+
+- name: "Add prometheus user '{{ prometheus_user }}'"
+  user:
+    name: "{{ prometheus_user }}"
+    group: "{{ prometheus_group }}"
+    comment: "Prometheus"
+    shell: /bin/false
+    system: yes
+  become: yes
+  when: prometheus_user != 'root'
+
+# --------------------------------------------------
+# Initialize the installation/upgrade process
+# --------------------------------------------------
+- name: Initialize the deploy root and gather facts
+  deploy_helper:
+    path: "{{ prometheus_base_dir }}"
+    release: "{{ prometheus_version }}"
+    mode: u=rwX,g=rX,o=rX
+  become: yes
+
+# --------------------------------------------------
+# Create the required directories
+# --------------------------------------------------
+- name: Create data directory for Prometheus
+  file:
+    path: '{{ prometheus_data_dir }}'
+    owner: '{{ prometheus_user }}'
+    group: '{{ prometheus_group }}'
+    state: directory
+
+- name: Create log directories for Prometheus
+  file:
+    path: '{{ prometheus_log_dir }}'
+    owner: '{{ prometheus_user }}'
+    group: '{{ prometheus_group }}'
+    state: directory
