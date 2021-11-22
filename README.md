@@ -1,4 +1,7 @@
-# ansible-role-prometheus
+# Ansible Role: Prometheus
+
+![ci](https://github.com/miarec/ansible-role-prometheus/actions/workflows/ci.yml/badge.svg)
+
 Ansible role to install Prometheus
 
 Prometheus is a time series database that aggregates reported data from node_exporter clients
