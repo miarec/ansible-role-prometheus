@@ -43,9 +43,55 @@ None.
       roles:
         - ansible-role-prometheus
 
-# Quick test of role (during development)
 
-Create a test inventory file (test-inventory.ini) with the following content:
+## Test using Molecule
+
+Create Python virtual environment, which will be used to install molecule package:
+
+    python3 -m venv molecule-venv
+
+Activate Python virtula environment:
+
+    python3 -m venv molecule-venv
+
+Install molecule package:
+
+    pip install "molecule[docker,lint]"
+
+
+Specify a distro, you would like to test the playbook against:
+
+    export MOLECULE_DISTRO=centos7
+    export MOLECULE_DISTRO=centos8
+    export MOLECULE_DISTRO=ubuntu1804
+    export MOLECULE_DISTRO=ubuntu2004
+
+Run tests:
+
+    molecule test
+
+
+
+The above command will run multiple steps at once (destroy, create, converge, destroy)
+
+If you would like to run each step manually, run:
+
+    molecule create
+    molecule converge
+    molecule verify
+    molecule destroy
+
+Use `login` command to enter the instance for troubleshooting:
+
+    molecule login
+
+
+## Test against an instance with SSH access
+
+You need to have an instance that is accessible via SSH, where the role will be installed.
+For example, you can create one with Terraform (not covered here).
+
+Create an inventory file (test-inventory.ini) with the following content:
 
     [all]
     my-server ansible_ssh_host=1.2.3.4 ansible_user=ubuntu
@@ -56,7 +102,7 @@ Create a test inventory file (test-inventory.ini) with the following content:
     [prometheus]
     my-server
 
-Create a test playbook file (test-provision.yml) with the following content:
+Create a playbook file (test-provision.yml) with the following content:
 
     ---
     - hosts: prometheus
