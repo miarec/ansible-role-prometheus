@@ -31,7 +31,7 @@ jobs:
 
       - name: Lint code.
         run: |
-          yamllint .
+          yamllint --format=standard .
   molecule:
     name: Molecule
     runs-on: ubuntu-latest
