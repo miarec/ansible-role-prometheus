@@ -19,4 +19,3 @@
     group: '{{ prometheus_group }}'
     mode: u=rX,g=rX,o=rX
   notify: reload prometheus
-
