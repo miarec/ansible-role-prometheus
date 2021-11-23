@@ -5,14 +5,15 @@ After=network-online.target
 
 [Service]
 User={{ prometheus_user }}
-Group={{ prometheus_user }}
+Group={{ prometheus_group }}
 Type=simple
-ExecStart={{ prometheus_bin }} \
---config.file /etc/prometheus/prometheus.yml \
---storage.tsdb.path /var/lib/prometheus/ \
---web.console.templates=/etc/prometheus/consoles \
---web.console.libraries=/etc/prometheus/console_libraries \
---web.listen-address=:{{ prometheus_listen_port }}
+ExecStart={{ prometheus_bin_dir }}/prometheus \
+  --config.file={{ prometheus_conf_dir }}/prometheus.yml \
+  --storage.tsdb.path={{ prometheus_data_dir }} \
+  --storage.tsdb.retention.time={{ prometheus_retention_time }} \
+  --web.listen-address={{ prometheus_listen_address }}
+
+ExecReload=/bin/kill -HUP $MAINPID
 
 [Install]
 WantedBy=multi-user.target

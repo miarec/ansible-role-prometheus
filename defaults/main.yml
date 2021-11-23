@@ -1,34 +1,66 @@
 ---
-# defaults file for prometheus
 
-#Version information
+# Version information
 prometheus_version: "2.28.1"    # https://prometheus.io/download/  for latest releases
-prometheus_download_url: "https://github.com/prometheus/prometheus/releases/download/v{{ prometheus_version }}/prometheus-{{ prometheus_version }}.linux-amd64.tar.gz"
+prometheus_download_url: "https://github.com/prometheus/prometheus/releases/download/v{{prometheus_version}}/prometheus-{{prometheus_version}}.linux-amd64.tar.gz"
 
-#Collection Behavior
-prometheus_retention_time: "365d"
+# Networks settings
+prometheus_listen_port: 9090
+prometheus_listen_address: "0.0.0.0:{{ prometheus_listen_port }}"
+
+
+# Collection Behavior
 prometheus_scrape_interval: "15s"
-prometheus_node_exporter: true
-prometheus_node_exporter_group: "all"
+prometheus_evaluation_interval: "1m"
+prometheus_retention_time: "365d"
 
-#OS prep
+
+# Static scrape configuration.
+# Override this parameter to add new targets
+prometheus_scrape_configs:
+  - job_name: prometheus
+    static_configs:
+      - targets: ['localhost:{{ prometheus_listen_port }}']
+
+
+# Additional configuration written to prometheus.yml file
+prometheus_extra_config: []
+
+
+# OS prep
 prometheus_user: prometheus
 prometheus_group: "{{ prometheus_user }}"
-prometheus_bin: "/usr/local/bin/prometheus"
-promtool_bin: /usr/local/bin/promtool
-prometheus_dir_config: /etc/prometheus
-prometheus_dir_storage: /var/lib/prometheus
 
-# 
-prometheus_var_config:
-  global:
-    scrape_interval: "{{ prometheus_scrape_interval }}"
-  scrape_configs:
-    - job_name: prometheus_master
-      scrape_interval: 5m
-      static_configs:
-        - targets: ['localhost:{{ prometheus_listen_port }}']
+# ------------------------------------
+# Installation folder structure:
+# ------------------------------------
+#   root:
+#      releases:
+#          - 1.0.0.100
+#          - 2.0.1.200
+#          - 3.1.2.5
+#      shared:
+#          - data1
+#          - data2
+#      current: -> releases/3.1.2.5
+#
+# The 'releases' folder holds all the available releases. During a deploy, a new folder should be created in the releases folder.
+# The 'current' symlink points to one of the releases (usually, the latest one)
+# The 'shared' folder holds any resource that is shared between releases.
+#
+# Base installation directory for MiaRec recorder
+prometheus_base_dir: /opt/prometheus
 
+prometheus_bin_dir: '{{ prometheus_base_dir }}/current'
+prometheus_conf_dir: '{{ prometheus_base_dir }}/shared/conf'
+prometheus_data_dir: '{{ prometheus_base_dir }}/shared/data'
 
+prometheus_log_dir: '/var/log/prometheus'
 
+# Directory where to download prometheus files
+prometheus_download_dir: /tmp
 
+# whether or not to delete the downloaded source code. By setting it
+# to false and using a custom var for `prometheus_download_dir` a kind of
+# local caching can be achieved.
+prometheus_cleanup_downloads: yes

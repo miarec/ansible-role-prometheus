@@ -1,0 +1,11 @@
+---
+- name: Converge
+  hosts: all
+  tasks:
+    - name: Detect role name
+      set_fact:
+        role_name: "{{ playbook_dir | dirname | dirname | basename }}"
+      
+    - name: "Include role ({{ role_name }})"
+      include_role:
+        name: "{{ role_name }}"
