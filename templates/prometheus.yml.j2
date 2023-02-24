@@ -1,11 +1,22 @@
-# {{ ansible_managed }} 
+# {{ ansible_managed }}
 
 # --------------------------------------
 # Global configuration
 # --------------------------------------
 global:
-  scrape_interval: {{ prometheus_scrape_interval }} 
+  scrape_interval: {{ prometheus_scrape_interval }}
   evaluation_interval: {{ prometheus_evaluation_interval }}
+  external_labels:
+    {{ prometheus_external_labels | to_nice_yaml(indent=2,sort_keys=False) | indent(4, False) }}
+
+{% if prometheus_mode == agent %}
+# --------------------------------------
+# Remote write configuration
+# --------------------------------------
+remote_write:
+- url: https:/{{ remote_prometheus }}/api/v1/write
+{% endif %}
+
 
 # --------------------------------------
 # Scrape configuration

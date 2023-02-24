@@ -1,5 +1,11 @@
 ---
 
+# Mode of prometheu, server, agent, or standalone
+prometheus_mode:
+
+prometheus_external_labels:
+  environment: "{{ ansible_fqdn | default(ansible_host) | default(inventory_hostname) }}"
+
 # Version information
 prometheus_version: "2.28.1"    # https://prometheus.io/download/  for latest releases
 prometheus_download_url: "https://github.com/prometheus/prometheus/releases/download/v{{prometheus_version}}/prometheus-{{prometheus_version}}.linux-amd64.tar.gz"
