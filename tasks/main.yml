@@ -2,19 +2,19 @@
 - include: preflight.yml
 
 - include: prepare.yml
-  become: yes
+  become: true
 
 # --------------------------------------------------
 # Install/upgrade 'prometheus' app files
 # --------------------------------------------------
 - include: install.yml
-  become: yes
+  become: true
 
 # --------------------------------------------------
 # Create a configuraiton file (prometheus.yml)
 # --------------------------------------------------
 - include: config.yml
-  become: yes
+  become: true
 
 # --------------------------------------------------
 # Install and run the service
@@ -26,14 +26,14 @@
     owner: root
     group: root
     mode: 0644
-  become: yes
+  become: true
   notify: start prometheus
 
 - name: Enable service
   service:
     name: prometheus
-    enabled: yes
-  become: yes
+    enabled: true
+  become: true
 
 - name: Force all handlers to run
   meta: flush_handlers
@@ -44,4 +44,4 @@
   service:
     name: prometheus
     state: started
-  become: yes
+  become: true

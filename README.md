@@ -6,38 +6,46 @@ Ansible role to install Prometheus
 
 Prometheus is a time series database that aggregates reported data from node_exporter clients
 
-## Role Variables
-
-### Prometheus Mode
-`prometheus_mode` defines the behavior of the prometheus instance
-
-
-- `agent` Prometheus server that will remote write metrics to a `server` Prometheus
+Prometheus can be deployed in one of 3 models
+- `agent` Prometheus server that will write metrics to a remote `server` Prometheus.
 - `server` Prometheus Server expecting to recieve metrics from an `agent` prometheus
-- `standalone` Prometheus server that will directly scrape and store metrics locally
+- `standalone` (Rare) Prometheus server that will directly scrape and store metrics locally
 
+## Role Variables
+- `promehteus_mode` Define mode of this prometheus instance, `agent`, `server`, or `standalaone`
+- `prometheus_scrape_configs` Define what prometheus is going to scrape
 
-### Version information:
-
-    prometheus_version: "2.28.1"
-
-Choose the version of Prometheus client to be installed. The available versions can be found at https://prometheus.io/download/
-
-### Scape targets configuration
-
+Example
+```yaml
   prometheus_scrape_configs:
-
     - job_name: prometheus
       static_configs:
         - targets:
           - localhost:9090
-
-    - job_name: node
+    - job_name: node_exporter
       static_configs:
         - targets:
           - localhost:9100
           - 1.2.3.4:9100
           - 5.6.7.8:9100
+```
+
+### Variables for `agent` mode
+ - `prometheus_mode` = `agent`
+ - `prometheus_write_target` Define the destination for remote writes
+
+Example
+```yaml
+  prometheus_write_target: "https://prometheus.example.com"
+```
+ - `external_labels` Define labels that applied to all metrics that are written to a remote prometheus, thes should be unique per cluster of monitored servers
+
+Example
+```yaml
+  external_labels:
+    - prometheus_agent: "prometheus-agent.region1.example.com"
+    - environtment: "YOUR_ENVIRONMENT"
+```
 
 ### Other variables
 
@@ -47,13 +55,71 @@ Check `defaults/main.yml` file for a list of all available variables.
 
 None.
 
-## Example Playbook
+## Example Playbooks
 
+### `server` mode
+```yaml
     ---
-    - name: Install Prometheus
+    - name: Install Prometheus Server
       hosts: prometheus
+      vars:
+        prometheus_mode: "server"
+        prometheus_scrape_configs:
+          - job_name: prometheus
+            static_configs:
+              - targets:
+                - localhost:9090
       roles:
         - ansible-role-prometheus
+```
+
+### `agent` mode
+```yaml
+    ---
+    - name: Install Prometheus Agent
+      hosts: prometheus
+      vars:
+        prometheus_mode: "agent"
+        prometheus_write_target: "https://prometheus.example.com"
+        external_labels:
+          - prometheus_agent: "prometheus-agent.region1.example.com"
+          - environtment: "YOUR_ENVIRONMENT"
+        prometheus_scrape_configs:
+          - job_name: prometheus
+            static_configs:
+              - targets:
+                - localhost:9090
+          - job_name: node_exporter
+            static_configs:
+              - targets:
+                - localhost:9100
+                - 10.0.0.10:9100
+                - 10.0.0.20:9100
+      roles:
+        - ansible-role-prometheus
+```
+
+### `standalone` mode
+```yaml
+    ---
+    - name: Install Prometheus Agent
+      hosts: prometheus
+      vars:
+        prometheus_mode: "standalone"
+        prometheus_scrape_configs:
+          - job_name: prometheus
+            static_configs:
+              - targets:
+                - localhost:9090
+          - job_name: node_exporter
+            static_configs:
+              - targets:
+                - localhost:9100
+                - 10.0.0.10:9100
+                - 10.0.0.20:9100
+      roles:
+        - ansible-role-prometheus
+```
 
 
 ## Test using Molecule
