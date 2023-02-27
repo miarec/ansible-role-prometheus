@@ -12,20 +12,12 @@ ExecStart={{ prometheus_bin_dir }}/prometheus \
   --storage.tsdb.path={{ prometheus_data_dir }} \
   --storage.tsdb.retention.time={{ prometheus_retention_time }} \
   --web.listen-address={{ prometheus_listen_address }} \
-{% if prometheus_mode == server %}
+{% if prometheus_mode == "server" %}
   --enable-feature=remote-write-receiver
-{% elif prometheus_mode == agent %}
+{% elif prometheus_mode == "agent" %}
   --enable-feature=agent
 {% else %}
 {% endif %}
-
-
-ExecStart={{ prometheus_bin_dir }}/prometheus \
-  --config.file={{ prometheus_conf_dir }}/prometheus.yml \
-  --storage.tsdb.path={{ prometheus_data_dir }} \
-  --storage.tsdb.retention.time={{ prometheus_retention_time }} \
-  --web.listen-address={{ prometheus_listen_address }}
-
 
 ExecReload=/bin/kill -HUP $MAINPID
 
