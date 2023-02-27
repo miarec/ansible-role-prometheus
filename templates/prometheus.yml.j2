@@ -14,7 +14,7 @@ global:
 # Remote write configuration
 # --------------------------------------
 remote_write:
-- url: https:/{{ remote_prometheus }}/api/v1/write
+- url: {{ prometheus_write_target }}/api/v1/write
 {% endif %}
 
 

@@ -8,11 +8,20 @@ Prometheus is a time series database that aggregates reported data from node_exp
 
 ## Role Variables
 
+### Prometheus Mode
+`prometheus_mode` defines the behavior of the prometheus instance
+
+
+- `agent` Prometheus server that will remote write metrics to a `server` Prometheus
+- `server` Prometheus Server expecting to recieve metrics from an `agent` prometheus
+- `standalone` Prometheus server that will directly scrape and store metrics locally
+
+
 ### Version information:
 
-    prometheus_version: "2.28.1" 
+    prometheus_version: "2.28.1"
 
-Choose the version of Prometheus client to be installed. The available versions can be found at https://prometheus.io/download/  
+Choose the version of Prometheus client to be installed. The available versions can be found at https://prometheus.io/download/
 
 ### Scape targets configuration
 
@@ -20,7 +29,7 @@ Choose the version of Prometheus client to be installed. The available versions 
 
     - job_name: prometheus
       static_configs:
-        - targets: 
+        - targets:
           - localhost:9090
 
     - job_name: node

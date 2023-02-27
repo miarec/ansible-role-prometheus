@@ -9,11 +9,11 @@
 - name: Check for prometheus_mode variable.
   fail:
     msg: Parameters 'prometheus_mode' must be provided, either 'server', 'agent, or 'standalone'.
-  when: not prometheus_mode
+  when: not prometheus_mode in allowed_prometheus_mode
 
 - name: Check for remote_prometheus variable.
   fail:
-    msg: When 'prometheus mode is 'agent', Parameters 'remote_prometheus' must be provided.
+    msg: When 'prometheus mode is 'agent', Parameters 'prometheus_write_target' must be provided. Example "https://prometheus.example.com" or "https://1.1.1.1:9090"
   when:
    - prometheus_mode == 'agent'
-   - not remote_prometheus
+   - not prometheus_write_target
