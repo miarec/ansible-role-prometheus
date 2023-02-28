@@ -1,5 +1,4 @@
 ---
-
 prometheus_mode: "server"
 # Mode of prometheus, server, agent, or standalone
 allowed_prometheus_mode:
