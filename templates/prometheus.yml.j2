@@ -7,7 +7,7 @@ global:
   scrape_interval: {{ prometheus_scrape_interval }}
   evaluation_interval: {{ prometheus_evaluation_interval }}
   external_labels:
-    {{ prometheus_external_labels | to_nice_yaml(indent=2,sort_keys=False) | indent(4, False) }}
+    {{ prometheus_external_labels | to_nice_yaml(indent=2) | indent(4, False) }}
 
 {% if prometheus_mode == "agent" %}
 # --------------------------------------
@@ -28,5 +28,5 @@ scrape_configs:
 # Additional configuration
 # --------------------------------------
 {% if prometheus_extra_config is defined and prometheus_extra_config|length %}
-{{ prometheus_extra_config | to_nice_yaml(indent=2) }}
+{{ prometheus_extra_config | to_nice_yaml(indent=2) | indent(2) }}
 {% endif %}
