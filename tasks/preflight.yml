@@ -1,0 +1,19 @@
+---
+- name: "Gather os specific variables ({{ ansible_distribution }} - {{ ansible_distribution_major_version }})"
+  include_vars: "{{ item }}"
+  with_first_found:
+    - "../vars/{{ ansible_distribution }}-{{ ansible_distribution_major_version}}.yml"
+    - "../vars/{{ ansible_distribution }}.yml"
+    - "../vars/{{ ansible_os_family }}.yml"
+
+- name: Check for prometheus_mode variable.
+  fail:
+    msg: Parameters 'prometheus_mode' must be provided, either 'server', 'agent, or 'standalone'.
+  when: not prometheus_mode in allowed_prometheus_mode
+
+- name: Check for remote_prometheus variable.
+  fail:
+    msg: When 'prometheus mode is 'agent', Parameters 'prometheus_write_target' must be provided. Example "https://prometheus.example.com"
+  when:
+    - prometheus_mode == 'agent'
+    - not prometheus_write_target

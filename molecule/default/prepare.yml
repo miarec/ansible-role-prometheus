@@ -9,8 +9,8 @@
 
     - name: Run "apt-get update" | Ubuntu
       apt:
-        update_cache: yes
-      when: 
+        update_cache: true
+      when:
         - '"microsoft" in ansible_kernel'
         - ansible_os_family == "Debian"
 

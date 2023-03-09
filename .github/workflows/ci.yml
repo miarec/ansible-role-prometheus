@@ -1,6 +1,6 @@
 ---
 name: CI
-on:
+'on':
   pull_request:
   push:
     branches:
@@ -34,7 +34,7 @@ jobs:
           yamllint --format=standard .
   molecule:
     name: Molecule
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-18.04
     strategy:
       matrix:
         distro:

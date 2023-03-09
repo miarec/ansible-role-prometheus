@@ -1,25 +1,20 @@
 ---
-- name: "Gather os specific variables ({{ ansible_distribution }} - {{ ansible_distribution_major_version }})"
-  include_vars: "{{ item }}"
-  with_first_found:
-    - "../vars/{{ ansible_distribution }}-{{ ansible_distribution_major_version}}.yml"
-    - "../vars/{{ ansible_distribution }}.yml"
-    - "../vars/{{ ansible_os_family }}.yml"
+- include: preflight.yml
 
 - include: prepare.yml
-  become: yes
+  become: true
 
 # --------------------------------------------------
 # Install/upgrade 'prometheus' app files
 # --------------------------------------------------
 - include: install.yml
-  become: yes
+  become: true
 
 # --------------------------------------------------
 # Create a configuraiton file (prometheus.yml)
 # --------------------------------------------------
 - include: config.yml
-  become: yes
+  become: true
 
 # --------------------------------------------------
 # Install and run the service
@@ -31,22 +26,22 @@
     owner: root
     group: root
     mode: 0644
-  become: yes
+  become: true
   notify: start prometheus
 
 - name: Enable service
-  service: 
+  service:
     name: prometheus
-    enabled: yes
-  become: yes
+    enabled: true
+  become: true
 
 - name: Force all handlers to run
   meta: flush_handlers
 
 # Make sure the service is running.
-# Otherwise, report error 
+# Otherwise, report error
 - name: Verify if service is running
-  service: 
+  service:
     name: prometheus
     state: started
-  become: yes
+  become: true

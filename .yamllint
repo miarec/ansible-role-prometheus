@@ -8,9 +8,9 @@ rules:
     allow-non-breakable-words: true
     allow-non-breakable-inline-mappings: true
 
-  truthy:
-    allowed-values: ['true', 'false', 'yes', 'no']
-    check-keys: false
+  # truthy:
+  #   allowed-values: ['true', 'false', 'yes', 'no']
+  #   check-keys: false
 
   trailing-spaces: disable
 

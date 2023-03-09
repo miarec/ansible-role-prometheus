@@ -6,7 +6,7 @@
   group:
     name: "{{ prometheus_group }}"
     state: present
-  become: yes
+  become: true
   when: prometheus_group != 'root'
 
 - name: "Add prometheus user '{{ prometheus_user }}'"
@@ -15,8 +15,8 @@
     group: "{{ prometheus_group }}"
     comment: "Prometheus"
     shell: /bin/false
-    system: yes
-  become: yes
+    system: true
+  become: true
   when: prometheus_user != 'root'
 
 # --------------------------------------------------
@@ -27,7 +27,7 @@
     path: "{{ prometheus_base_dir }}"
     release: "{{ prometheus_version }}"
     mode: u=rwX,g=rX,o=rX
-  become: yes
+  become: true
 
 # --------------------------------------------------
 # Create the required directories

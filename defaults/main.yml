@@ -1,4 +1,15 @@
 ---
+prometheus_mode: "server"
+# Mode of prometheus, server, agent, or standalone
+allowed_prometheus_mode:
+ - "agent"
+ - "server"
+ - "standalone"
+
+prometheus_external_labels:
+ environment: "{{ ansible_fqdn | default(ansible_host) | default(inventory_hostname) }}"
+
+# prometheus_write_target: "https://prometheus.example.com"
 
 # Version information
 prometheus_version: "2.28.1"    # https://prometheus.io/download/  for latest releases
@@ -18,14 +29,13 @@ prometheus_retention_time: "365d"
 # Static scrape configuration.
 # Override this parameter to add new targets
 prometheus_scrape_configs:
-  - job_name: prometheus
-    static_configs:
-      - targets: ['localhost:{{ prometheus_listen_port }}']
+ - job_name: prometheus
+   static_configs:
+    - targets: ['localhost:{{ prometheus_listen_port }}']
 
 
 # Additional configuration written to prometheus.yml file
 prometheus_extra_config: []
-
 
 # OS prep
 prometheus_user: prometheus
@@ -50,11 +60,9 @@ prometheus_group: "{{ prometheus_user }}"
 #
 # Base installation directory for MiaRec recorder
 prometheus_base_dir: /opt/prometheus
-
 prometheus_bin_dir: '{{ prometheus_base_dir }}/current'
 prometheus_conf_dir: '{{ prometheus_base_dir }}/shared/conf'
 prometheus_data_dir: '{{ prometheus_base_dir }}/shared/data'
-
 prometheus_log_dir: '/var/log/prometheus'
 
 # Directory where to download prometheus files
@@ -63,4 +71,4 @@ prometheus_download_dir: /tmp
 # whether or not to delete the downloaded source code. By setting it
 # to false and using a custom var for `prometheus_download_dir` a kind of
 # local caching can be achieved.
-prometheus_cleanup_downloads: yes
+prometheus_cleanup_downloads: true

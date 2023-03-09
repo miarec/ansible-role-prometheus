@@ -1,18 +1,18 @@
 ---
 - name: restart prometheus
-  service: 
+  service:
     name: prometheus
     state: restarted
-  become: yes
+  become: true
 
 - name: reload prometheus
-  service: 
+  service:
     name: prometheus
     state: reloaded
-  become: yes
+  become: true
 
 - name: start prometheus
-  service: 
+  service:
     name: prometheus
     state: started
-  become: yes
+  become: true
