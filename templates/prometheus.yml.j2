@@ -15,6 +15,11 @@ global:
 # --------------------------------------
 remote_write:
 - url: {{ prometheus_write_target }}/api/v1/write
+{% if client_auth_user is defined %}
+  basic_auth:
+    username: {{ client_auth_user }}
+    password: {{ client_auth_password }}
+{% endif %}
 {% endif %}
 
 
