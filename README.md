@@ -33,6 +33,9 @@ Example
 ### Variables for `agent` mode
  - `prometheus_mode` = `agent`
  - `prometheus_write_target` Define the destination for remote writes
+ - `client_auth_user` (Optional) username used for basic authentication with Prometheus
+ - `client_auth_password` (Optional) password used for basic authentication with Prometheus
+
 
 Example
 ```yaml
