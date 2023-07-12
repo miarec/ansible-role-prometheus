@@ -63,7 +63,6 @@
 #           ANSIBLE_FORCE_COLOR: '1'
 #           MOLECULE_DISTRO: ${{ matrix.distro }}
 
----
 name: Ansible role testing
 'on':
   pull_request:
