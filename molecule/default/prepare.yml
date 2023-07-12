@@ -1,47 +1,47 @@
 ---
-- name: Prepare
-  hosts: all
+# - name: Prepare
+#   hosts: all
 
-  tasks:
-    - name: Check ansible_kernel
-      debug:
-        msg: "{{ ansible_kernel }}"
+#   tasks:
+#     - name: Check ansible_kernel
+#       debug:
+#         msg: "{{ ansible_kernel }}"
 
-    - name: Run "apt-get update" | Ubuntu
-      apt:
-        update_cache: true
-      when:
-        - '"microsoft" in ansible_kernel'
-        - ansible_os_family == "Debian"
+#     - name: Run "apt-get update" | Ubuntu
+#       apt:
+#         update_cache: true
+#       when:
+#         - '"microsoft" in ansible_kernel'
+#         - ansible_os_family == "Debian"
 
-    - name: Update SystemD | WSL
-      package:
-        name: systemd
-        state: latest
-      when: '"microsoft" in ansible_kernel'
+#     - name: Update SystemD | WSL
+#       package:
+#         name: systemd
+#         state: latest
+#       when: '"microsoft" in ansible_kernel'
 
-    - name: Make sure python is installed | WSL
-      package:
-        name: python
-      when: '"microsoft" in ansible_kernel'
+#     - name: Make sure python is installed | WSL
+#       package:
+#         name: python
+#       when: '"microsoft" in ansible_kernel'
 
-    - name: Download systemctl.py file | WSL
-      get_url:
-        url: "https://raw.githubusercontent.com/gdraheim/docker-systemctl-replacement/master/files/docker/systemctl.py"
-        dest: "/usr/bin/systemctl"
-        owner: root
-        group: root
-        mode: "u=rwx,g=rx,o=rx"
-      when: '"microsoft" in ansible_kernel'
+#     - name: Download systemctl.py file | WSL
+#       get_url:
+#         url: "https://raw.githubusercontent.com/gdraheim/docker-systemctl-replacement/master/files/docker/systemctl.py"
+#         dest: "/usr/bin/systemctl"
+#         owner: root
+#         group: root
+#         mode: "u=rwx,g=rx,o=rx"
+#       when: '"microsoft" in ansible_kernel'
 
-    - name: Ensure run directory for ansible check_systemd | WSL
-      file:
-        name: /run/systemd/system/
-        state: directory
-      when: '"microsoft" in ansible_kernel'
+#     - name: Ensure run directory for ansible check_systemd | WSL
+#       file:
+#         name: /run/systemd/system/
+#         state: directory
+#       when: '"microsoft" in ansible_kernel'
 
-    - name: Stop D-Bus service | WSL
-      service:
-        name: dbus.service
-        state: stopped
-      when: '"microsoft" in ansible_kernel'
+#     - name: Stop D-Bus service | WSL
+#       service:
+#         name: dbus.service
+#         state: stopped
+#       when: '"microsoft" in ansible_kernel'
