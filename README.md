@@ -1,6 +1,6 @@
 # Ansible Role: Prometheus
 
-[![ci](https://github.com/miarec/ansible-role-prometheus/actions/workflows/ci.yml/badge.svg)](https://github.com/miarec/ansible-role-prometheus/actions?query=workflow%3Aci)
+![ci](https://github.com/miarec/ansible-role-prometheus/actions/workflows/ci.yml/badge.svg?event=push)
 
 Ansible role to install Prometheus
 
